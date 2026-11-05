@@ -1,56 +1,46 @@
-# Welcome to your Expo app 👋
+# i233074-Quiz04 — Firebase OTP Phone Login
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+An Expo (SDK 58) React Native app that logs a user in with their phone number using
+**Firebase Authentication** (SMS one-time password). It uses the Firebase JS SDK with the
+project's **Web app** config, so it runs in **Expo Go** (Android / iOS) and in the browser —
+no native build needed. The flow follows
+[Authenticate with Firebase using a Phone Number](https://firebase.google.com/docs/auth/android/phone-auth).
 
-## Get started
+1. The user enters their phone number (international format, e.g. `+923001234567`).
+2. A reCAPTCHA check runs, then Firebase sends a 6-digit OTP by SMS.
+3. The user enters the OTP.
+4. The app verifies it: a wrong or expired code shows a failure message; a correct code opens the **Login Successful** page.
 
-1. Install dependencies
+| File | Purpose |
+| --- | --- |
+| `src/config/firebase-config.ts` | Firebase web app config |
+| `src/lib/firebase.ts` / `firebase.web.ts` | Firebase initialisation (native keeps the session in AsyncStorage) |
+| `src/lib/firebase-auth.ts` | `signInWithPhoneNumber`, `confirm`, `signOut`, and error messages |
+| `src/components/recaptcha-verifier.tsx` | Native: "I'm not a robot" check in a WebView, token passed to Firebase |
+| `src/components/recaptcha-verifier.web.tsx` | Web: Firebase's invisible `RecaptchaVerifier` |
+| `src/app/index.tsx` | Login page: phone number → OTP entry, resend timer, error messages |
+| `src/app/success.tsx` | Successful-login page with the verified number and a Logout button |
 
-   ```bash
-   npm install
-   ```
+## Firebase console setup
 
-2. Start the app
+0. **Add a Web app** to your Firebase project and paste its `firebaseConfig` into
+   `src/config/firebase-config.ts`.
+1. **Authentication → Sign-in method → Phone → Enable.**
+2. **Authentication → Settings → SMS region policy:** allow your country (for example, Pakistan).
+   New projects allow no regions, so no SMS is sent until you set one.
+3. **Authentication → Settings → Authorized domains:** `localhost` and
+   `<your-project-id>.firebaseapp.com` must be listed (they are by default).
+4. **Testing without real SMS (recommended for the demo):** Authentication → Sign-in method →
+   Phone → **Phone numbers for testing** → add e.g. `+1 650-555-3434` with code `123456`.
+   No SMS is sent; type the fixed code instead. If Firebase reports that billing is not enabled,
+   real SMS needs the Blaze plan, but test numbers still work.
 
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **src/app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## Run
 
 ```bash
-npm run reset-project
+npm install
+npx expo start
 ```
 
-This command will move the starter code to the **example** directory and create a blank **src/app** directory where you can start developing.
-
-### Other setup steps
-
-- To set up ESLint for linting, run `npx expo lint`, or follow our guide on ["Using ESLint and Prettier"](https://docs.expo.dev/guides/using-eslint/)
-- If you'd like to set up unit testing, follow our guide on ["Unit Testing with Jest"](https://docs.expo.dev/develop/unit-testing/)
-- Learn more about the TypeScript setup in this template in our guide on ["Using TypeScript"](https://docs.expo.dev/guides/typescript/)
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- **Phone:** scan the QR code with **Expo Go**.
+- **Browser:** press `w` (or `npm run web`).

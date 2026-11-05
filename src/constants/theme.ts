@@ -24,6 +24,13 @@ export const Colors = {
   },
 } as const;
 
+/** Accent colors that read well on both the light and dark backgrounds. */
+export const Palette = {
+  primary: '#208AEF',
+  danger: '#E5484D',
+  success: '#30A46C',
+} as const;
+
 export type ThemeColor = keyof typeof Colors.light & keyof typeof Colors.dark;
 
 export const Fonts = Platform.select({
